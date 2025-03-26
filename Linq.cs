@@ -10,17 +10,16 @@ class Program
 
         int[] ints = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
-        // var linqResult = from i in ints where i > 4 orderby i descending select i;
-        var linqResult = ints.Where(i => i > 4)
-                             .OrderByDescending(i => i);
+        // Filtering and Sorting
+        var filteredSortedInts = ints.Where(i => i > 4).OrderByDescending(i => i);
 
         Console.WriteLine("Filtered and Sorted Integers:");
-        foreach (var i in linqResult)
+        foreach (var i in filteredSortedInts)
         {
             Console.WriteLine(i);
         }
 
-        Console.WriteLine("\nUsing in List:");
+        Console.WriteLine("\nUsing LINQ in List:");
 
         List<string> list = new() { "Moiz", "Me", "Learning LINQ" };
 
@@ -31,7 +30,7 @@ class Program
             Console.WriteLine(l);
         }
 
-        // ======== LINQ concept in SQL DB ==========
+        // ======== LINQ Concept in SQL DB ==========
         // Table --> Class
         // Column --> Property
         // Rows --> Objects
@@ -45,21 +44,69 @@ class Program
             new Student { Id = 3, Name = "Ahmed", Age = 21 }
         };
 
-        // LINQ Query using Modern Method Syntax
+        // Sorting Students
         var sortedStudents = students.OrderBy(s => s.Name);
 
-        Console.WriteLine("\nStudents Objects:");
+        Console.WriteLine("\nStudents (Sorted by Name):");
         foreach (var student in sortedStudents)
         {
             Console.WriteLine($"Id: {student.Id}, Name: {student.Name}, Age: {student.Age}");
         }
+
+        // Aggregation Operations
+        var totalStudents = students.Count();
+        var averageAge = students.Average(s => s.Age);
+        var maxAge = students.Max(s => s.Age);
+
+        Console.WriteLine($"\nTotal Students: {totalStudents}");
+        Console.WriteLine($"Average Age: {averageAge}");
+        Console.WriteLine($"Oldest Student Age: {maxAge}");
+
+        // ======== LINQ Join Example ==========
+        List<Course> courses = new()
+        {
+            new Course { CourseId = 1, StudentId = 1, CourseName = "Math" },
+            new Course { CourseId = 2, StudentId = 1, CourseName = "Physics" },
+            new Course { CourseId = 3, StudentId = 2, CourseName = "Biology" }
+        };
+
+        // Inner Join
+        var studentCourses = from s in students
+                             join c in courses on s.Id equals c.StudentId
+                             select new { s.Name, c.CourseName };
+
+        Console.WriteLine("\nInner Join (Students and Courses):");
+        foreach (var sc in studentCourses)
+        {
+            Console.WriteLine($"Student: {sc.Name}, Course: {sc.CourseName}");
+        }
+
+        // Left Join (Including students without courses)
+        var leftJoin = from s in students
+                       join c in courses on s.Id equals c.StudentId into sc
+                       from subCourse in sc.DefaultIfEmpty()
+                       select new { s.Name, Course = subCourse?.CourseName ?? "No Course" };
+
+        Console.WriteLine("\nLeft Join (All Students and Their Courses):");
+        foreach (var item in leftJoin)
+        {
+            Console.WriteLine($"Student: {item.Name}, Course: {item.Course}");
+        }
     }
 }
 
-// Define the Student class
+// Define Student Class
 class Student
 {
     public int Id { get; set; }
     public string? Name { get; set; }
     public int Age { get; set; }
+}
+
+// Define Course Class
+class Course
+{
+    public int CourseId { get; set; }
+    public int StudentId { get; set; }
+    public string? CourseName { get; set; }
 }
